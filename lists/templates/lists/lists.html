@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>어구 관리</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: sans-serif;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f3f3f3;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .left-buttons {
+            width: 15%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            margin-left: 2%;
+        }
+        .left-buttons h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+        .left-buttons a {
+            padding: 10px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .left-buttons a.blue {
+            color: #007bff;
+        }
+        .left-buttons a.black {
+            color: black;
+        }
+        .left-buttons a:hover {
+            text-decoration: underline;
+        }
+        .center-content {
+            width: 60%;
+        }
+        .month-buttons {
+            margin-bottom: 20px;
+        }
+        .month-buttons button {
+            padding: 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .side-panel {
+            width: 20%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            font-family: sans-serif;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h2>어구어구</h2>
+
+    <div class="container">
+        <div class="left-buttons">
+            <h3>실시간 유실 어구</h3>
+            <a href="{% url 'map_view' %}?view=assigned" class="blue">수거 완료 어구</a>
+
+            <h3>어구 관리</h3>
+            <a href="{% url 'gear_list' %}" class="blue">구매 정보 관리</a>
+            <a href="{% url 'losting_gear' %}" class="blue">신고 정보 관리</a>
+
+            <h3>수거선 관리</h3>
+            <a href="{% url 'may-calendar' %}" class="blue">수거선 배정</a>
+
+            <!-- 🔻 로그아웃 링크 추가 -->
+            <a href="/login/" class="blue" style="margin-top: 30px; font-weight: bold;">로그아웃</a>
+        </div>
+
+        <div class="center-content">
+            {% if view_type == 'gear_list' %}
+                <div class="month-buttons">
+                    <a href="{% url 'gear_list' %}"><button>전체</button></a>
+                    {% for m in month_buttons %}
+                        <a href="?month={{ m }}"><button>{{ m }}월</button></a>
+                    {% endfor %}
+                </div>
+                <h3>어구 구매 정보 리스트</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>구매자 이름</th>
+                            <th>어구 ID</th>
+                            <th>구매 장소</th>
+                            <th>어구 종류</th>
+                            <th>구매자 연락처</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for gear in gear_list %}
+                        <tr>
+                            <td>{{ gear.buyer_name }}</td>
+                            <td>{{ gear.gear_id }}</td>
+                            <td>{{ gear.seller_address }}</td>
+                            <td>{{ gear.type }}</td>
+                            <td>{{ gear.buyer_ph }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% elif view_type == 'losting_gear' %}
+                <div class="month-buttons">
+                    <a href="{% url 'losting_gear' %}"><button>전체</button></a>
+                    {% for month in month_buttons %}
+                        <a href="?month={{ month }}"><button>{{ month }}월</button></a>
+                    {% endfor %}
+                </div>
+                <h3>신고 정보 리스트</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>구매자 ID</th>
+                            <th>유실 위치(위도)</th>
+                            <th>유실 위치(경도)</th>
+                            <th>신고 시간</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if losting_gear_list %}
+                            {% for lost in losting_gear_list %}
+                            <tr>
+                                <td>{{ lost.buyer_id }}</td>
+                                <td>{{ lost.cast_latitude }}</td>
+                                <td>{{ lost.cast_longitude }}</td>
+                                <td>{{ lost.report_time }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4">해당 월에 신고된 어구 정보가 없습니다.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+
+        <div class="side-panel">
+            {% if view_type == 'gear_list' %}
+                {% if selected_month != "전체" %}
+                    <h3>통발 자망 비율 ({{ selected_month }}월)(원그래프)</h3>
+                    <p>통발: {{ month_data.trap_percentage|floatformat:2 }}%</p>
+                    <p>자망: {{ month_data.gillnet_percentage|floatformat:2 }}%</p>
+                {% else %}
+                    <h3>전체 통발 자망 비율(원그래프)</h3>
+                    <p>통발: {{ total_trap_percentage|floatformat:2 }}%</p>
+                    <p>자망: {{ total_gillnet_percentage|floatformat:2 }}%</p>
+
+                    <h3>월별 어구 개수(막대그래프)</h3>
+                    {% for m in month_buttons %}
+                        <p><strong>{{ m }}월</strong></p>
+                        {% for k, v in month_counts.items %}
+                            {% if k == m %}
+                                <p style="margin-left: 10px;">자망: {{ v.gillnet_count }}개</p>
+                                <p style="margin-left: 10px;">통발: {{ v.trap_count }}개</p>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            {% elif view_type == 'losting_gear' %}
+                {% if current_month_count is not None %}
+                    <h3>{{ selected_month }}월 수거 통계(원그래프)</h3>
+                    <p>신고량: {{ current_month_count }}건</p>
+                    <p>수거량: {{ current_month_retrieved }}건</p>
+                    <p>수거율: {{ current_month_ratio|floatformat:2 }}%</p>
+                {% else %}
+                    <h3>전체 수거 통계(원그래프)</h3>
+                    <p>전체 신고량: {{ total_report_count }}건</p>
+                    <p>전체 수거량: {{ retrieved_count }}건</p>
+                    <p>수거율: {{ total_retrieval_ratio|floatformat:2 }}%</p>
+
+                    <h3>월별 신고량(막대그래프)</h3>
+                    {% for month, count in monthly_report_count.items %}
+                        <p>{{ month }}월: {{ count }}건</p>
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

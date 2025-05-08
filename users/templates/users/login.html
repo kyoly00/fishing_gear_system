@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로그인</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+  <style>
+    a.register-button {
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="login-vertical-wrapper">
+  <div class="login-box">
+    <!-- 로고 -->
+    <div class="login-logo-row">
+      <img src="{% static 'images/loginlogo.jpg' %}" alt="로고" class="login-logo-img" />
+    </div>
+
+    <form method="post" action="{% url 'login' %}" class="login-form">
+      {% csrf_token %}
+      <label for="admin_id">ID</label>
+      <input type="text" name="admin_id" required />
+
+      <label for="admin_pw">PW</label>
+      <input type="password" name="admin_pw" required />
+
+      <div class="login-button-wrapper">
+        <button type="submit" class="login-button">로그인</button>
+        <a href="{% url 'signup' %}" class="register-button login-button">회원가입</a>
+      </div>
+    </form>
+
+    {% if error_message %}
+      <p class="error-message">{{ error_message }}</p>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>
+
+
+

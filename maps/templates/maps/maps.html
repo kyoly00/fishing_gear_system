@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>남해 지도</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; font-family: sans-serif; }
+        h2 { margin: 20px 0 0 30px; }
+        .container { display: flex; height: calc(100% - 60px); }
+        .left-buttons {
+            width: 15%; display: flex; flex-direction: column;
+            align-items: flex-start; margin-left: 2%; padding-top: 20px;
+        }
+        .left-buttons h3 { font-size: 20px; margin-bottom: 10px; margin-top: 20px; }
+        .left-buttons a { padding: 6px 10px; margin-bottom: 6px; text-decoration: none; font-size: 16px; }
+        .left-buttons a.blue { color: #007bff; }
+
+        .map-container {
+            width: 60%; height: 100%;
+            margin-left: 2%; border: 1px solid #ccc;
+        }
+
+        #map { width: 100%; height: 100%; }
+
+        .right-panel {
+            width: 20%; padding: 10px; margin-left: 2%;
+            border-left: 1px solid #ddd; background-color: #f9f9f9; overflow-y: auto;
+        }
+
+        .report-card {
+            border: 1px solid #ccc; background-color: #fff;
+            padding: 10px; margin-bottom: 10px; font-size: 13px;
+        }
+
+        .report-card p { margin: 4px 0; }
+
+        .view-toggle-buttons {
+            display: flex; gap: 8px; margin-bottom: 10px;
+        }
+
+        .view-toggle-buttons a {
+            padding: 6px 10px; background-color: #eee;
+            border-radius: 4px; font-weight: bold; color: #007bff;
+            text-decoration: none; border: 1px solid #007bff;
+        }
+
+        .view-toggle-buttons a.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .logout-link {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>어구어구</h2>
+
+    <div class="container">
+        <!-- 왼쪽 메뉴 -->
+        <div class="left-buttons">
+            <h3>실시간 유실 어구</h3>
+            <a href="{% url 'map_view' %}?view=assigned" class="blue">수거 완료 어구</a>
+
+            <h3>어구 관리</h3>
+            <a href="{% url 'gear_list' %}" class="blue">구매 정보 관리</a>
+            <a href="{% url 'losting_gear' %}" class="blue">신고 정보 관리</a>
+
+            <h3>수거선 관리</h3>
+            <a href="{% url 'may-calendar' %}" class="blue">수거선 배정</a>
+
+            <div class="logout-link">
+                <a href="/login/" class="blue" style="font-weight: bold;">로그아웃</a>
+            </div>
+        </div>
+
+        <!-- 지도 -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- 오른쪽 패널 -->
+        <div class="right-panel">
+            <div class="view-toggle-buttons">
+                <a href="?view=assigned" class="{% if view_type == 'assigned' %}active{% endif %}">수거 완료 어구</a>
+                <a href="?view=unassigned" class="{% if view_type == 'unassigned' %}active{% endif %}">수거 예정 어구</a>
+            </div>
+
+            <h3>
+                {% if view_type == 'assigned' %}
+                    수거 완료 어구 목록
+                {% else %}
+                    수거 예정 어구 목록
+                {% endif %}
+            </h3>
+
+            <p><strong>총 {{ lost_reports|length }}개 표시 중</strong></p>
+
+            {% if lost_reports %}
+                {% for report in lost_reports %}
+                <div class="report-card">
+                    <p><strong>신고 번호:</strong> {{ report.report_id }}</p>
+                    <p><strong>어구 주인:</strong> {{ report.buyer_name }}</p>
+                    <p><strong>신고 시간:</strong> {{ report.report_time }}</p>
+                    <p><strong>유실위치(위도):</strong> {{ report.latitude }}</p>
+                    <p><strong>유실위치(경도):</strong> {{ report.longitude }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>표시할 데이터가 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map', {
+            zoomControl: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            dragging: false,
+        }).setView([34.8, 127.5], 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const mask = L.geoJSON({
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
+                    [-180, 90], [180, 90], [180, -90], [-180, -90], [-180, 90]
+                ],
+                [
+                    [124.58367239350154, 33.356712872931695],
+                    [129.8662572198445, 33.356712872931695],
+                    [129.8662572198445, 36.214468291188176],
+                    [124.58367239350154, 36.214468291188176],
+                    [124.58367239350154, 33.356712872931695]
+                ]]
+            }
+        }, {
+            style: {
+                color: '#ffffff',
+                fillColor: '#ffffff',
+                fillOpacity: 1,
+                stroke: false
+            }
+        }).addTo(map);
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

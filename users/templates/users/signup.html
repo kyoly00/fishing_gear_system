@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>회원가입</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+  <div class="login-vertical-wrapper">
+    <div class="login-box signup-form">
+      <!-- 로고 -->
+      <div class="login-logo-row">
+        <img src="{% static 'images/loginlogo.jpg' %}" alt="로고" class="login-logo-img" />
+      </div>
+
+      <h2 style="text-align: center;">회원가입</h2>
+
+      <form method="post" class="login-form">
+        {% csrf_token %}
+
+        <label for="admin_name">이름</label>
+        <input type="text" name="admin_name" required />
+
+        <label for="region">지역</label>
+        <select name="region" required>
+          <option value="">-- 지역을 선택하세요 --</option>
+          <option value="통영시">통영시</option>
+          <option value="거제시">거제시</option>
+          <option value="고성군">고성군</option>
+          <option value="남해군">남해군</option>
+          <option value="사천시">사천시</option>
+          <option value="하동군">하동군</option>
+          <option value="여수시">여수시</option>
+          <option value="고흥군">고흥군</option>
+          <option value="완도군">완도군</option>
+          <option value="해남군">해남군</option>
+          <option value="제주시">제주시</option>
+          <option value="서귀포시">서귀포시</option>
+        </select>
+
+        <label for="admin_id">ID</label>
+        <input type="text" name="admin_id" required />
+
+        <label for="admin_pw">PW</label>
+        <input type="password" name="admin_pw" required />
+
+        <label for="admin_pw_check">PW 확인</label>
+        <input type="password" name="admin_pw_check" required />
+
+        <div class="login-button-wrapper" style="justify-content: center;">
+          <button type="submit" class="login-button">회원가입<br>완료</button>
+        </div>
+      </form>
+
+      {% if error_message %}
+        <p class="error-message">{{ error_message }}</p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
+
