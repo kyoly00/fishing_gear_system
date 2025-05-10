@@ -1,0 +1,237 @@
+.dashboard-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Pretendard', sans-serif;
+  position: relative;
+}
+
+.map-section {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 100vh; 
+}
+
+/* 지도 영역 스타일 */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.panel-toggle-button {
+  position: absolute;
+  top: 40px;
+  left: -40px;
+  width: 40px;
+  height: 60px; 
+  background-color: #f4f4f4;
+  cursor: pointer;
+  z-index: 1001;
+  border-radius: 8px 0 0 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left 0.3s ease;
+}
+
+.panel-toggle-button.opened {
+  left: 320px;
+}
+
+/* 사이드바 스타일 */
+.report-list {
+  position: fixed;
+  top: 0;
+  right: -300px; /* 사이드바를 숨기기 */
+  width: 300px;
+  height: 100vh;
+  background-color: #f0f0f0;
+  transition: right 0.3s ease;
+  padding: 20px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+/* 사이드바가 열릴 때 */
+.report-list.open {
+  right: 0;
+}
+
+/* 목록 관련 스타일 */
+.report-list h3 {
+  margin-top: 4px;
+  margin-bottom: 16px;
+  font-size: 20px;
+  color: #333;
+}
+
+.report-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.report-item {
+  position: relative;
+  background: white;
+  border-radius: 6px;
+  padding: 0;
+  min-height: 60px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.report-content {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+  padding-left: 48px;
+  padding-right: 8px;
+  padding-top: 6px;
+  padding-bottom: 8px;
+  flex: 1;
+}
+
+.report-index {
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  background: #e0e0e0;
+  border-radius: 4px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-box {
+  width: 20px;
+  border-radius: 0 6px 6px 0;
+  align-self: stretch;
+}
+
+.status-box.green {
+  background-color: #4caf50;
+}
+
+.status-box.red {
+  background-color: #f44336;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.status-legend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 13px;
+  color: #555;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.green {
+  background-color: #4caf50;
+}
+
+.dot.red {
+  background-color: #f44336;
+}
+.custom-marker-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.custom-marker {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  z-index: 999;
+}
+
+.custom-marker::after {
+  content: attr(data-index);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px black;
+  pointer-events: none;
+}
+
+
+.custom-marker.green {
+  background-color: #4caf50;
+}
+
+.custom-marker.red {
+  background-color: #f44336;
+}
+.custom-marker .marker-shape {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-marker .marker-shape::after {
+  content: '';
+  position: center;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  top: 9px;
+  left: 9px;
+  transform: rotate(45deg);
+}
+
+.custom-marker .marker-number {
+  position: absolute;
+  color: rgb(2, 2, 2);
+  font-weight: bold;
+  font-size: 13px;
+  transform: rotate(45deg);
+  z-index: 1;
+}

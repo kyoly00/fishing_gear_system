@@ -100,4 +100,3 @@ def available_boats_by_date(request):
     return HttpResponse(option_html)
 
 
-

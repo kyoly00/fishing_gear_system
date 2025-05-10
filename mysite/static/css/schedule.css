@@ -1,0 +1,135 @@
+
+.schedule-page {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+  
+  .schedule-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .left-panel {
+    flex: 3;
+    position: relative; 
+  }
+  
+  .right-panel {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+  }
+  
+  /* Page Title */
+  .schedule-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Month-Year Label above Calendar */
+  .calendar-grid-title {
+    position: absolute;
+    top: 0rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3rem;
+    font-weight: 600;
+    margin: 0;
+    z-index: 1;
+  }
+  
+  /* Calendar Wrapper adds padding for controls and title */
+  .calendar-wrapper {
+    position: relative;
+    padding-top: 4rem; 
+  }
+  
+  /* Calendar height increase */
+  .calendar-wrapper .fc {
+    height: 1000px ;
+  }
+  
+  /* Calendar Controls (Year/Month selects) */
+  .calendar-controls {
+    position: absolute;
+    top: 1rem;       
+    right: 0rem;      
+    display: flex;
+    gap: 1.5rem;
+    background-color: #ffffff;
+    padding: 0.5rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+  }
+  
+  .calendar-controls select {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 100px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fafafa;
+  }
+  
+  /* Remove default "today" highlight in FullCalendar */
+  .fc .fc-daygrid-day.fc-day-today {
+    background-color: transparent !important;
+  }
+  
+  /* Report List Header */
+  .schedule-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  /* Gear Card spacing */
+  .gear-card + .gear-card {
+    margin-top: 1rem;
+  }
+  
+  /* Assignment Form Styles */
+  .assignment-form {
+    margin-top: 2rem;
+  }
+  
+  .assignment-form h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .assignment-form form label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  
+  .assignment-form form select,
+  .assignment-form form input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .assignment-form form button {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #3366FF;
+    border: none;
+    color: #ffffff;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .assignment-message {
+    margin-top: 1rem;
+    color: green;
+  }
+  

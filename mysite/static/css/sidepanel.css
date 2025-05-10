@@ -1,0 +1,124 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  height: 100vh; 
+  background-color: #f4f4f4;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 40px;
+}
+
+.sidebar-logo h2 {
+  font-size: 24px;
+  font-family: 'Jua', sans-serif;
+  font-weight: bold;
+  color: #1f3d75;
+  margin: 0;
+}
+
+.logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* 메뉴 */
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  margin-bottom: 20px;
+}
+
+.sidebar-menu li a {
+  text-decoration: none;
+  color: black;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-menu li a .icon {
+  font-size: 18px;
+}
+
+.sidebar-menu li a.nav-active {
+  color: #1f59dd;
+  font-weight: bold;
+}
+
+/* 어구 관리 메뉴 - 토글 */
+.menu-item {
+  list-style: none;
+}
+
+.menu-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.sub-menu {
+  list-style: none;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.sub-menu li {
+  margin-bottom: 10px;
+}
+
+.sub-menu li a {
+  text-decoration: none;
+  color: black;
+  font-size: 16px; 
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 10px;
+}
+
+.nav-active {
+  color: #1f59dd;
+  font-weight: bold;
+}
+
+/* 관리자 정보 */
+.admin-info {
+  display: flex;
+  align-items: center;
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.sidebar-logout {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #555;
+  font-size: 18px; 
+  font-weight: 500;
+}
+
+.sidebar-logout .icon {
+  margin-right: 8px;
+}
