@@ -1,209 +1,279 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>어구 관리</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: sans-serif;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #f3f3f3;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .left-buttons {
-            width: 15%;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            margin-left: 2%;
-        }
-        .left-buttons h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-            margin-top: 20px;
-        }
-        .left-buttons a {
-            padding: 10px;
-            margin-bottom: 10px;
-            text-decoration: none;
-            font-size: 16px;
-        }
-        .left-buttons a.blue {
-            color: #007bff;
-        }
-        .left-buttons a.black {
-            color: black;
-        }
-        .left-buttons a:hover {
-            text-decoration: underline;
-        }
-        .center-content {
-            width: 60%;
-        }
-        .month-buttons {
-            margin-bottom: 20px;
-        }
-        .month-buttons button {
-            padding: 10px;
-            margin-right: 10px;
-            cursor: pointer;
-        }
-        .side-panel {
-            width: 20%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            font-family: sans-serif;
-            margin-top: 20px;
-            background-color: #f9f9f9;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>어구 관리</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/buyer.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body { margin:0; padding:0; width:100%; height:100%; font-family:'Pretendard',sans-serif; background:#f4f7fa; color:#333; }
+    .dashboard-wrapper { display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:#fff; box-shadow:2px 0 5px rgba(0,0,0,0.1); display:flex; flex-direction:column; padding:20px; }
+    .sidebar-logo { display:flex; align-items:center; gap:10px; margin-bottom:20px; cursor:pointer; }
+    .logo-img { width:32px; height:32px; }
+    .sidebar-menu { list-style:none; padding:0; margin:0; }
+    .sidebar-menu li { margin-bottom:10px; }
+    .sidebar-menu a { text-decoration:none; color:#333; font-weight:bold; display:block; padding:6px 0; }
+    .menu-title { cursor:pointer; font-weight:bold; margin-bottom:4px; }
+    .sub-menu { list-style:none; padding-left:15px; margin-bottom:10px; display:none; }
+    .sub-menu li { margin-bottom:4px; }
+    .sidebar-logout { margin-top:auto; cursor:pointer; color:#f44336; font-weight:bold; padding-top:20px; border-top:1px solid #eee; }
+    .main-content.buyerdb-container { flex:1; padding:30px 40px; }
+    h2 { margin:0 0 16px; font-size:24px; color:#333; }
+    .month-filters { margin-bottom:24px; }
+    .month-filters button { margin-right:8px; padding:6px 12px; border:1px solid #ccc; background:#fff; border-radius:4px; cursor:pointer; transition:background .2s; }
+    .month-filters button:hover { background:#f0f0f0; }
+    .month-filters button.active { background:#1f3d75; color:#fff; border-color:#1f3d75; }
+    .table-section { background:#fff; border-radius:8px; overflow-x:auto; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:24px; }
+    .buyer-table { width:100%; border-collapse:collapse; }
+    .buyer-table th, .buyer-table td { border:1px solid #ddd; padding:12px; text-align:center; font-size:14px; }
+    .buyer-table th { background:#f8f8f8; font-weight:bold; }
+    .buyer-table tr:nth-child(even) { background:#fafafa; }
+    .pagination { margin:16px 0; text-align:center; }
+    .pagination button { margin:0 4px; padding:6px 10px; border:1px solid #ccc; background:#fff; border-radius:4px; cursor:pointer; transition:background .2s; }
+    .pagination button:hover:not(:disabled) { background:#f0f0f0; }
+    .pagination button.active { background:#1f3d75; color:#fff; border-color:#1f3d75; }
+    .pagination button:disabled { opacity:.5; cursor:default; }
+    .chart-section { background:#fff; border-radius:8px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:24px; }
+    .chart-section h3 { margin-bottom:12px; font-size:20px; color:#333; }
+    .chart-section h4 { margin:0 0 8px; font-size:16px; color:#333; }
+  </style>
 </head>
 <body>
-    <h2>어구어구</h2>
+<div class="dashboard-wrapper">
 
-    <div class="container">
-        <div class="left-buttons">
-            <h3>실시간 유실 어구</h3>
-            <a href="{% url 'map_view' %}?view=assigned" class="blue">수거 완료 어구</a>
-
-            <h3>어구 관리</h3>
-            <a href="{% url 'gear_list' %}" class="blue">구매 정보 관리</a>
-            <a href="{% url 'losting_gear' %}" class="blue">신고 정보 관리</a>
-
-            <h3>수거선 관리</h3>
-            <a href="{% url 'may-calendar' %}" class="blue">수거선 배정</a>
-
-            <!-- 🔻 로그아웃 링크 추가 -->
-            <a href="/login/" class="blue" style="margin-top: 30px; font-weight: bold;">로그아웃</a>
-        </div>
-
-        <div class="center-content">
-            {% if view_type == 'gear_list' %}
-                <div class="month-buttons">
-                    <a href="{% url 'gear_list' %}"><button>전체</button></a>
-                    {% for m in month_buttons %}
-                        <a href="?month={{ m }}"><button>{{ m }}월</button></a>
-                    {% endfor %}
-                </div>
-                <h3>어구 구매 정보 리스트</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>구매자 이름</th>
-                            <th>어구 ID</th>
-                            <th>구매 장소</th>
-                            <th>어구 종류</th>
-                            <th>구매자 연락처</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for gear in gear_list %}
-                        <tr>
-                            <td>{{ gear.buyer_name }}</td>
-                            <td>{{ gear.gear_id }}</td>
-                            <td>{{ gear.seller_address }}</td>
-                            <td>{{ gear.type }}</td>
-                            <td>{{ gear.buyer_ph }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-            {% elif view_type == 'losting_gear' %}
-                <div class="month-buttons">
-                    <a href="{% url 'losting_gear' %}"><button>전체</button></a>
-                    {% for month in month_buttons %}
-                        <a href="?month={{ month }}"><button>{{ month }}월</button></a>
-                    {% endfor %}
-                </div>
-                <h3>신고 정보 리스트</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>구매자 ID</th>
-                            <th>유실 위치(위도)</th>
-                            <th>유실 위치(경도)</th>
-                            <th>신고 시간</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if losting_gear_list %}
-                            {% for lost in losting_gear_list %}
-                            <tr>
-                                <td>{{ lost.buyer_id }}</td>
-                                <td>{{ lost.cast_latitude }}</td>
-                                <td>{{ lost.cast_longitude }}</td>
-                                <td>{{ lost.report_time }}</td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="4">해당 월에 신고된 어구 정보가 없습니다.</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-
-        <div class="side-panel">
-            {% if view_type == 'gear_list' %}
-                {% if selected_month != "전체" %}
-                    <h3>통발 자망 비율 ({{ selected_month }}월)(원그래프)</h3>
-                    <p>통발: {{ month_data.trap_percentage|floatformat:2 }}%</p>
-                    <p>자망: {{ month_data.gillnet_percentage|floatformat:2 }}%</p>
-                {% else %}
-                    <h3>전체 통발 자망 비율(원그래프)</h3>
-                    <p>통발: {{ total_trap_percentage|floatformat:2 }}%</p>
-                    <p>자망: {{ total_gillnet_percentage|floatformat:2 }}%</p>
-
-                    <h3>월별 어구 개수(막대그래프)</h3>
-                    {% for m in month_buttons %}
-                        <p><strong>{{ m }}월</strong></p>
-                        {% for k, v in month_counts.items %}
-                            {% if k == m %}
-                                <p style="margin-left: 10px;">자망: {{ v.gillnet_count }}개</p>
-                                <p style="margin-left: 10px;">통발: {{ v.trap_count }}개</p>
-                            {% endif %}
-                        {% endfor %}
-                    {% endfor %}
-                {% endif %}
-            {% elif view_type == 'losting_gear' %}
-                {% if current_month_count is not None %}
-                    <h3>{{ selected_month }}월 수거 통계(원그래프)</h3>
-                    <p>신고량: {{ current_month_count }}건</p>
-                    <p>수거량: {{ current_month_retrieved }}건</p>
-                    <p>수거율: {{ current_month_ratio|floatformat:2 }}%</p>
-                {% else %}
-                    <h3>전체 수거 통계(원그래프)</h3>
-                    <p>전체 신고량: {{ total_report_count }}건</p>
-                    <p>전체 수거량: {{ retrieved_count }}건</p>
-                    <p>수거율: {{ total_retrieval_ratio|floatformat:2 }}%</p>
-
-                    <h3>월별 신고량(막대그래프)</h3>
-                    {% for month, count in monthly_report_count.items %}
-                        <p>{{ month }}월: {{ count }}건</p>
-                    {% endfor %}
-                {% endif %}
-            {% endif %}
-        </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo" onclick="window.location.href='/maps/'">
+      <img src="{% static 'images/loginlogo.jpg' %}" alt="로고" class="logo-img" />
+      <h2>어구어구</h2>
     </div>
+    <ul class="sidebar-menu">
+      <li><a href="{% url 'map_view' %}?view=assigned">🏠 실시간 유실 어구</a></li>
+      <li class="menu-item">
+        <div class="menu-title" onclick="toggleMenu()">🔔 어구 관리</div>
+        <ul id="subMenu" class="sub-menu">
+          <li><a href="{% url 'losting_gear' %}">신고 정보 관리</a></li>
+          <li><a href="{% url 'gear_list' %}">구매 정보 관리</a></li>
+        </ul>
+      </li>
+      <li><a href="{% url 'may-calendar' %}">📅 수거선 배정</a></li>
+    </ul>
+    <div class="sidebar-logout" onclick="window.location.href='/login/'">🚪 로그아웃</div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content buyerdb-container">
+    <h2>{% if view_type == 'gear_list' %}어구 구매 정보 리스트{% else %}신고 정보 리스트{% endif %}</h2>
+
+    <div class="month-filters">
+      {% for m in month_buttons %}
+        <a href="?month={{ m }}"><button class="{% if selected_month == m %}active{% endif %}">{{ m }}월</button></a>
+      {% endfor %}
+      <a href="{% if view_type == 'gear_list' %}{% url 'gear_list' %}{% else %}{% url 'losting_gear' %}{% endif %}">
+        <button class="{% if selected_month == '전체' %}active{% endif %}">전체</button>
+      </a>
+    </div>
+
+    <div class="table-section">
+      <table class="buyer-table">
+        <thead>
+          {% if view_type == 'gear_list' %}
+            <tr><th>구매자 이름</th><th>어구 ID</th><th>구매 장소</th><th>어구 종류</th><th>구매자 연락처</th></tr>
+          {% else %}
+            <tr><th>구매자 ID</th><th>위도</th><th>경도</th><th>신고 시간</th></tr>
+          {% endif %}
+        </thead>
+        <tbody>
+          {% for item in page_obj %}
+            <tr>
+              {% if view_type == 'gear_list' %}
+                <td>{{ item.buyer_name }}</td>
+                <td>{{ item.gear_id }}</td>
+                <td>{{ item.seller_address }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.buyer_ph }}</td>
+              {% else %}
+                <td>{{ item.buyer_id }}</td>
+                <td>{{ item.cast_latitude }}</td>
+                <td>{{ item.cast_longitude }}</td>
+                <td>{{ item.report_time }}</td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        {% if page_obj.has_previous %}
+          <a href="?{% if selected_month != '전체' %}month={{ selected_month }}&{% endif %}page={{ page_obj.previous_page_number }}"><button>이전</button></a>
+        {% else %}<button disabled>이전</button>{% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <button class="active">{{ num }}</button>
+          {% else %}
+            <a href="?{% if selected_month != '전체' %}month={{ selected_month }}&{% endif %}page={{ num }}"><button>{{ num }}</button></a>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <a href="?{% if selected_month != '전체' %}month={{ selected_month }}&{% endif %}page={{ page_obj.next_page_number }}"><button>다음</button></a>
+        {% else %}<button disabled>다음</button>{% endif %}
+      </div>
+    </div>
+    <!-- Chart Section -->
+    <div class="chart-section">
+      {% if view_type == 'gear_list' %}
+        <h3>어구별 구매량</h3>
+        {% if selected_month == '전체' %}
+          <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+            <div style="flex: 1 1 48%;">
+              <canvas id="lineChart" style="max-height: 280px;"></canvas>
+            </div>
+            <div style="flex: 1 1 48%;">
+              <h4 style="margin-bottom: 8px;">전체 어구 비율</h4>
+              <canvas id="gearPieChart" style="max-height: 260px;"></canvas>
+            </div>
+          </div>
+          <script>
+            const lineData = {
+              labels: [{% for m in month_buttons %}"{{ m }}월"{% if not forloop.last %}, {% endif %}{% endfor %}],
+              datasets: [
+                { label: '통발', data: {{ trap_counts_list|safe }}, borderColor: "#82ca9d", backgroundColor: "transparent", tension: 0.3 },
+                { label: '자망', data: {{ gillnet_counts_list|safe }}, borderColor: "#1f3d75", backgroundColor: "transparent", tension: 0.3 }
+              ]
+            };
+            new Chart(document.getElementById('lineChart'), {
+              type: 'line',
+              data: lineData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { position: 'top' } }
+              }
+            });
+
+            const pieData = {
+              labels: ['통발', '자망'],
+              datasets: [{
+                data: [{{ sel_trap }}, {{ sel_gill }}],
+                backgroundColor: ['#82ca9d', '#1f3d75']
+              }]
+            };
+            new Chart(document.getElementById('gearPieChart'), {
+              type: 'pie',
+              data: pieData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } }
+              }
+            });
+          </script>
+        {% else %}
+          <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+            <div style="flex: 1 1 48%;">
+              <canvas id="barChart" style="max-height: 280px;"></canvas>
+            </div>
+            <div style="flex: 1 1 48%;">
+              <h4 style="margin-bottom: 8px;">{{ selected_month }}월 어구 비율</h4>
+              <canvas id="gearPieChart" style="max-height: 260px;"></canvas>
+            </div>
+          </div>
+          <script>
+            const barData = {
+              labels: ["{{ selected_month }}월"],
+              datasets: [
+                { label: '통발', data: [{{ sel_trap }}], backgroundColor: "#82ca9d" },
+                { label: '자망', data: [{{ sel_gill }}], backgroundColor: "#1f3d75" }
+              ]
+            };
+            new Chart(document.getElementById('barChart'), {
+              type: 'bar',
+              data: barData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { position: 'top' } }
+              }
+            });
+
+            const pieMonthData = {
+              labels: ['통발', '자망'],
+              datasets: [{
+                data: [{{ sel_trap }}, {{ sel_gill }}],
+                backgroundColor: ['#82ca9d', '#1f3d75']
+              }]
+            };
+            new Chart(document.getElementById('gearPieChart'), {
+              type: 'pie',
+              data: pieMonthData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } }
+              }
+            });
+          </script>
+        {% endif %}
+      {% else %}
+        <h3>수거 통계</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+          <div style="flex: 1 1 45%;">
+            <canvas id="pieChart" style="max-height: 260px;"></canvas>
+          </div>
+          <div style="flex: 1 1 45%;">
+            <h4 style="margin-bottom: 8px;">월별 수거량</h4>
+            <canvas id="monthlyBarChart" style="max-height: 260px;"></canvas>
+          </div>
+        </div>
+        <script>
+          const pieData = {
+            labels: ['수거량','미수거량'],
+            datasets:[{ data: [{{ current_month_retrieved }}, {{ current_month_not_retrieved }}], backgroundColor:['#1f3d75','#cccccc'] }]
+          };
+          new Chart(document.getElementById('pieChart'), {
+            type:'pie', data:pieData,
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top' } } }
+          });
+
+          const monthlyLabels = [{% for m in month_buttons %}"{{ m }}월"{% if not forloop.last %}, {% endif %}{% endfor %}];
+          const monthlyData = {{ retrieved_counts_list|safe }};
+          new Chart(document.getElementById('monthlyBarChart'), {
+            type: 'bar',
+            data: { labels: monthlyLabels, datasets:[{ label: '수거량', data: monthlyData, backgroundColor: '#1f3d75' }] },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { y: { beginAtZero: true } },
+              plugins: { legend: { display: false } }
+            }
+          });
+        </script>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function toggleMenu() {
+    const menu = document.getElementById("subMenu");
+    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+  }
+</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 

@@ -4,11 +4,40 @@
   <meta charset="UTF-8">
   <title>2025년 5월 수거선 일정</title>
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/sidepanel.css' %}">
+  <link rel="stylesheet" href="{% static 'css/buyer.css' %}">
   <style>
-    .layout-wrapper {
-      display: flex;
-      height: 100vh;
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%; width: 100%;
+      font-family: 'Pretendard', sans-serif;
+      background: #f4f7fa;
+      color: #333;
+    }
+    .layout-wrapper { display: flex; height: 100vh; }
+    .sidebar {
+      width: 240px; background: #fff;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex; flex-direction: column;
+      padding: 20px;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center;
+      gap: 10px; margin-bottom: 20px; cursor: pointer;
+    }
+    .logo-img { width: 32px; height: 32px; }
+    .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+    .sidebar-menu li { margin-bottom: 10px; }
+    .sidebar-menu a {
+      text-decoration: none; color: #333;
+      font-weight: bold; display: block; padding: 6px 0;
+    }
+    .menu-title { cursor: pointer; font-weight: bold; margin-bottom: 4px; }
+    .sub-menu { list-style: none; padding-left: 15px; margin-bottom: 10px; display: none; }
+    .sub-menu li { margin-bottom: 4px; }
+    .sidebar-logout {
+      margin-top: auto; cursor: pointer;
+      color: #f44336; font-weight: bold;
+      padding-top: 20px; border-top: 1px solid #eee;
     }
 
     .schedule-main {
@@ -17,27 +46,22 @@
       padding: 2rem;
       gap: 2rem;
     }
-
     .calendar-section {
       flex: 2.15;
       min-width: 600px;
     }
-
     .calendar-title {
       font-size: 24px;
       font-weight: bold;
       margin-bottom: 0.5rem;
       text-align: left;
     }
-
     .calendar-section table {
       width: 100%;
       table-layout: fixed;
       font-size: 10px;
     }
-
-    .calendar-section th,
-    .calendar-section td {
+    .calendar-section th, .calendar-section td {
       border: 1px solid #ddd;
       height: 60px;
       padding: 3px;
@@ -46,19 +70,16 @@
       vertical-align: top;
       word-break: break-word;
     }
-
     .calendar-section td strong {
       display: block;
       font-weight: bold;
       margin-bottom: 4px;
     }
-
     .calendar-section td span {
       font-size: 9px;
       display: block;
       line-height: 1.2;
     }
-
     .list-section {
       flex: 0.85;
       background: #ffffff;
@@ -68,7 +89,6 @@
       overflow-y: auto;
       max-height: 90vh;
     }
-
     .report-card {
       background-color: #f4f4f4;
       border: 1px solid #ccc;
@@ -77,12 +97,10 @@
       margin-bottom: 12px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
-
     .assignment-form label {
       display: block;
       margin-top: 1rem;
     }
-
     .assignment-form select,
     .assignment-form input {
       width: 100%;
@@ -91,7 +109,6 @@
       border-radius: 4px;
       border: 1px solid #ccc;
     }
-
     .assignment-form button {
       margin-top: 1rem;
       padding: 0.5rem 1rem;
@@ -101,7 +118,6 @@
       border-radius: 4px;
       cursor: pointer;
     }
-
     .assignment-message {
       margin-top: 1rem;
       color: green;
@@ -110,40 +126,28 @@
 </head>
 <body>
   <div class="layout-wrapper">
+
     <!-- Sidebar -->
     <div class="sidebar">
-      <div class="sidebar-logo" onclick="window.location.href='/dashboard/'">
+      <div class="sidebar-logo" onclick="window.location.href='/maps/'">
         <img src="{% static 'images/loginlogo.jpg' %}" alt="로고" class="logo-img" />
         <h2>어구어구</h2>
       </div>
 
       <ul class="sidebar-menu">
-        <li>
-          <a href="{% url 'map_view' %}?view=assigned" class="{% if request.path == '/dashboard/' %}nav-active{% endif %}">
-            <span class="icon">🏠</span>
-            <span>실시간 유실 어구</span>
-          </a>
-        </li>
+        <li><a href="{% url 'map_view' %}?view=assigned">🏠 실시간 유실 어구</a></li>
         <li class="menu-item">
-          <div class="menu-title" onclick="toggleMenu()">
-            <span class="icon">🔔</span>
-            <span>어구 관리</span>
-          </div>
-          <ul id="subMenu" class="sub-menu" style="display: none;">
+          <div class="menu-title" onclick="toggleMenu()">🔔 어구 관리</div>
+          <ul id="subMenu" class="sub-menu">
             <li><a href="{% url 'losting_gear' %}">신고 정보 관리</a></li>
             <li><a href="{% url 'gear_list' %}">구매 정보 관리</a></li>
           </ul>
         </li>
-        <li>
-          <a href="{% url 'may-calendar' %}" class="{% if request.path == '/schedule/' %}nav-active{% endif %}">
-            <span class="icon">📅</span>
-            <span>수거선 배정</span>
-          </a>
-        </li>
+        <li><a href="{% url 'may-calendar' %}">📅 수거선 배정</a></li>
       </ul>
+
       <div class="sidebar-logout" onclick="window.location.href='/login/'">
-        <span class="icon">🚪</span>
-        <span>로그아웃</span>
+        🚪 로그아웃
       </div>
     </div>
 
@@ -155,7 +159,7 @@
         {{ calendar|safe }}
       </div>
 
-      <!-- Assignment + Report List Section -->
+      <!-- Assignment Section -->
       <div class="list-section">
         <h2 class="schedule-header">수거 예정 리스트</h2>
         {% for report in unassigned_list %}
@@ -214,7 +218,7 @@
   <script>
     function toggleMenu() {
       const menu = document.getElementById("subMenu");
-      menu.style.display = menu.style.display === "none" ? "block" : "none";
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
 
     function fetchBoatsByDate() {
@@ -250,6 +254,7 @@
   </script>
 </body>
 </html>
+
 
 
 

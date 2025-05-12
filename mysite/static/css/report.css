@@ -1,0 +1,146 @@
+.buyerdb-container {
+  padding: 0 20px 20px;
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* 페이지 제목 */
+h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  color: #333;
+}
+
+/* --- 월별 버튼 --- */
+.month-filters {
+  margin-bottom: 24px;
+}
+
+.month-filters button {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.month-filters button:hover {
+  background: #f0f0f0;
+}
+
+.month-filters button.active {
+  background: #1f3d75;
+  color: white;
+  border-color: #1f3d75;
+}
+
+/* --- 테이블 섹션 --- */
+.table-section {
+  overflow-x: auto;
+}
+
+.buyer-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.buyer-table th,
+.buyer-table td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.buyer-table th {
+  background: #f8f8f8;
+  font-weight: bold;
+}
+
+.buyer-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* --- 페이지네이션 --- */
+.pagination {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.pagination button {
+  margin: 0 4px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.pagination button.active {
+  background: #1f3d75;
+  color: white;
+  border-color: #1f3d75;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* --- 그래프 섹션 --- */
+.chart-section {
+  margin-top: 32px;
+}
+
+.chart-section h3 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  color: #333;
+}
+
+/* BarChart 바 색상 */
+.recharts-bar-rectangle {
+  fill: #1f3d75;
+}
+
+/* --- PieChart 카드 스타일 & 중앙 제목 오버레이 --- */
+.pie-charts {
+  display: flex;
+  gap: 2rem;                
+}
+
+.pie-chart-item {
+  padding-top: 1.5rem;
+  position: relative;       
+  flex: 1;
+  background: #fff;         
+  border-radius: 8px;       
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);  
+  padding: 1rem;             
+}
+
+/* 그래프 중앙에 겹치는 제목 */
+.pie-chart-item h3 {
+  position: static;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;     
+  z-index: 1;
+}
+
+
+.pie-chart-item .recharts-legend,
+.pie-chart-item .recharts-tooltip-wrapper {
+  position: relative;
+  z-index: 2;
+}
