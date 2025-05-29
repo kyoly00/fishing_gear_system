@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>2025년 5월 수거선 일정</title>
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/buyer.css' %}">
+  <link rel="stylesheet" href="{% static 'css/buyer.css' %}" />
   <style>
     html, body {
       margin: 0; padding: 0;
@@ -20,192 +20,150 @@
       display: flex; flex-direction: column;
       padding: 20px;
     }
-    .sidebar-logo {
-      display: flex; align-items: center;
-      gap: 10px; margin-bottom: 20px; cursor: pointer;
-    }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; cursor: pointer; }
     .logo-img { width: 32px; height: 32px; }
     .sidebar-menu { list-style: none; padding: 0; margin: 0; }
     .sidebar-menu li { margin-bottom: 10px; }
-    .sidebar-menu a {
-      text-decoration: none; color: #333;
-      font-weight: bold; display: block; padding: 6px 0;
-    }
+    .sidebar-menu a { text-decoration: none; color: #333; font-weight: bold; display: block; padding: 6px 0; }
     .menu-title { cursor: pointer; font-weight: bold; margin-bottom: 4px; }
     .sub-menu { list-style: none; padding-left: 15px; margin-bottom: 10px; display: none; }
     .sub-menu li { margin-bottom: 4px; }
-    .sidebar-logout {
-      margin-top: auto; cursor: pointer;
-      color: #f44336; font-weight: bold;
-      padding-top: 20px; border-top: 1px solid #eee;
-    }
+    .sidebar-logout { margin-top: auto; cursor: pointer; color: #f44336; font-weight: bold; padding-top: 20px; border-top: 1px solid #eee; }
 
-    .schedule-main {
-      display: flex;
-      flex: 1;
-      padding: 2rem;
-      gap: 2rem;
-    }
-    .calendar-section {
-      flex: 2.15;
-      min-width: 600px;
-    }
-    .calendar-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      text-align: left;
-    }
-    .calendar-section table {
-      width: 100%;
-      table-layout: fixed;
-      font-size: 10px;
-    }
-    .calendar-section th, .calendar-section td {
-      border: 1px solid #ddd;
-      height: 60px;
-      padding: 3px;
-      font-size: 10px;
-      line-height: 1.2;
-      vertical-align: top;
-      word-break: break-word;
-    }
-    .calendar-section td strong {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-    .calendar-section td span {
-      font-size: 9px;
-      display: block;
-      line-height: 1.2;
-    }
+    .schedule-main { display: flex; flex: 1; padding: 2rem; gap: 2rem; }
+    .calendar-section { flex: 2.15; min-width: 600px; }
+    .calendar-title { font-size: 24px; font-weight: bold; margin-bottom: 0.5rem; }
+    .calendar-section table { width: 100%; table-layout: fixed; font-size: 10px; }
+    .calendar-section th, .calendar-section td { border: 1px solid #ddd; height: 60px; padding: 3px; font-size: 10px; line-height: 1.2; vertical-align: top; word-break: break-word; }
+    .calendar-section td strong { display: block; font-weight: bold; margin-bottom: 4px; }
+    .calendar-section td span { font-size: 9px; display: block; line-height: 1.2; }
+
+    /* List Section */
     .list-section {
       flex: 0.85;
-      background: #ffffff;
+      background: #fff;
       border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
       overflow-y: auto;
       max-height: 90vh;
     }
-    .report-card {
-      background-color: #f4f4f4;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    .list-section h2 {
+      font-size: 20px; font-weight: 600;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid navy;
+      padding-bottom: 0.5rem;
     }
-    .assignment-form label {
-      display: block;
-      margin-top: 1rem;
+    .report-list { list-style: none; padding: 0; margin: 0; }
+    .report-list li {
+      background: #fff;
+      border-left: 4px solid navy;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      transition: background 0.2s;
     }
-    .assignment-form select,
-    .assignment-form input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
+    .report-list li:hover { background: #f9f9f9; }
+    .field { margin-bottom: 0.4rem; font-size: 14px; }
+    .field strong { width: 80px; display: inline-block; }
+
+    /* Assignment Form */
+    .assignment-form h2 {
+      font-size: 20px; font-weight: 600;
+      margin-top: 2rem;
+      border-bottom: 2px solid navy;
+      padding-bottom: 0.5rem;
     }
+    .assignment-form label { display: block; margin-bottom: 1rem; font-size: 14px; }
+    .assignment-form label strong { display: block; margin-bottom: 0.25rem; }
+    .assignment-form select, .assignment-form input { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
     .assignment-form button {
       margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background-color: #1f59dd;
+      width: 100%; padding: 0.75rem;
+      background-color: navy;
       border: none;
-      color: white;
+      color: #fff;
+      font-size: 16px;
       border-radius: 4px;
       cursor: pointer;
     }
-    .assignment-message {
-      margin-top: 1rem;
-      color: green;
-    }
+    .assignment-message { margin-top: 1rem; font-size: 14px; }
   </style>
 </head>
 <body>
   <div class="layout-wrapper">
-
-    <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-logo" onclick="window.location.href='/maps/'">
         <img src="{% static 'images/loginlogo.jpg' %}" alt="로고" class="logo-img" />
         <h2>어구어구</h2>
       </div>
-
       <ul class="sidebar-menu">
         <li><a href="{% url 'map_view' %}?view=assigned">🏠 실시간 유실 어구</a></li>
-        <li class="menu-item">
-          <div class="menu-title" onclick="toggleMenu()">🔔 어구 관리</div>
+        <li class="menu-item"><div class="menu-title" onclick="toggleMenu()">🔔 어구 관리</div>
           <ul id="subMenu" class="sub-menu">
             <li><a href="{% url 'losting_gear' %}">신고 정보 관리</a></li>
             <li><a href="{% url 'gear_list' %}">구매 정보 관리</a></li>
           </ul>
         </li>
-        <li><a href="{% url 'may-calendar' %}">📅 수거선 배정</a></li>
+        <li class="menu-item">
+          <div class="menu-title" onclick="toggleBoatMenu()">🚢 수거선</div>
+          <ul id="boatSubMenu" class="sub-menu">
+            <li><a href="{% url 'may-calendar' %}">수거선 배정</a></li>
+            <li><a href="{% url 'sediment_map' %}">침적 시뮬레이션</a></li>
+          </ul>
+        </li>
       </ul>
-
-      <div class="sidebar-logout" onclick="window.location.href='/login/'">
-        🚪 로그아웃
-      </div>
+      <div class="sidebar-logout" onclick="window.location.href='/login/'">🚪 로그아웃</div>
     </div>
-
-    <!-- Main Content -->
     <div class="schedule-main">
-      <!-- Calendar Section -->
       <div class="calendar-section">
         <div class="calendar-title">수거선 배정</div>
         {{ calendar|safe }}
       </div>
-
-      <!-- Assignment Section -->
       <div class="list-section">
-        <h2 class="schedule-header">수거 예정 리스트</h2>
-        {% for report in unassigned_list %}
-          <div class="report-card">
-            <p><strong>신고 번호:</strong> {{ report.report_id }}</p>
-            <p><strong>구매자 ID:</strong> {{ report.buyer_id }}</p>
-            <p><strong>신고 일자:</strong> {{ report.report_time }}</p>
-            <p><strong>위치(위도):</strong> {{ report.latitude }}</p>
-            <p><strong>위치(경도):</strong> {{ report.longitude }}</p>
-          </div>
-        {% endfor %}
-
+        <h2>수거 예정 리스트</h2>
+        <ul class="report-list">
+          {% for report in unassigned_list %}
+          <li>
+            <div class="field"><strong>신고 번호:</strong> {{ report.report_id }}</div>
+            <div class="field"><strong>구매자 ID:</strong> {{ report.buyer_id }}</div>
+            <div class="field"><strong>신고 일자:</strong> {{ report.report_time }}</div>
+            <div class="field"><strong>위도:</strong> {{ report.latitude }}</div>
+            <div class="field"><strong>경도:</strong> {{ report.longitude }}</div>
+          </li>
+          {% endfor %}
+        </ul>
         <div class="assignment-form">
-          <h2 class="schedule-header">수거선 배정</h2>
+          <h2>수거선 배정</h2>
           <form onsubmit="assignReport(); return false;">
-            <label>신고 번호:
+            <label><strong>신고 번호</strong>
               <select id="reportSelect" required>
                 <option value="" disabled selected>선택...</option>
                 {% for report in unassigned_list %}
-                  <option value="{{ report.report_id }}">{{ report.report_id }}</option>
+                <option value="{{ report.report_id }}">{{ report.report_id }}</option>
                 {% endfor %}
               </select>
             </label>
-
-            <label>수거 예정 날짜:
+            <label><strong>수거 예정 날짜</strong>
               <select id="dateSelect" onchange="fetchBoatsByDate()" required>
                 {% for date in may_dates %}
-                  <option value="{{ date }}">{{ date }}</option>
+                <option value="{{ date }}">{{ date }}</option>
                 {% endfor %}
               </select>
             </label>
-
-            <label>수거선:
+            <label><strong>수거선</strong>
               <select id="boatSelect" required>
                 <option value="">날짜를 선택하세요</option>
               </select>
             </label>
-
-            <label>예상 위치(위도):
-              <input type="text" id="manualLatitude" required placeholder="예: 34.123456">
+            <label><strong>예상 위치(위도)</strong>
+              <input type="text" id="manualLatitude" required placeholder="예: 34.123456" />
             </label>
-
-            <label>예상 위치(경도):
-              <input type="text" id="manualLongitude" required placeholder="예: 127.654321">
+            <label><strong>예상 위치(경도)</strong>
+              <input type="text" id="manualLongitude" required placeholder="예: 127.654321" />
             </label>
-
             <button type="submit">배정하기</button>
           </form>
           <p id="assignmentResult" class="assignment-message"></p>
@@ -213,21 +171,21 @@
       </div>
     </div>
   </div>
-
-  <!-- Scripts -->
   <script>
     function toggleMenu() {
-      const menu = document.getElementById("subMenu");
-      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+      const menu = document.getElementById('subMenu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
-
+    function toggleBoatMenu() {
+      const menu = document.getElementById('boatSubMenu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
     function fetchBoatsByDate() {
-      const selectedDate = document.getElementById("dateSelect").value;
-      const boatSelect = document.getElementById("boatSelect");
-      boatSelect.innerHTML = "<option>불러오는 중...</option>";
-
+      const selectedDate = document.getElementById('dateSelect').value;
+      const boatSelect = document.getElementById('boatSelect');
+      boatSelect.innerHTML = '<option>불러오는 중...</option>';
       fetch(`/schedule/available-boats/?date=${selectedDate}`)
-        .then(response => response.text())
+        .then(res => res.text())
         .then(html => {
           boatSelect.innerHTML = html.trim() || '<option value="">해당 날짜에 수거선 없음</option>';
         })
@@ -235,25 +193,23 @@
           boatSelect.innerHTML = '<option value="">오류 발생</option>';
         });
     }
-
     function assignReport() {
-      const reportId = document.getElementById("reportSelect").value;
-      const boatSelect = document.getElementById("boatSelect");
+      const reportId = document.getElementById('reportSelect').value;
+      const boatSelect = document.getElementById('boatSelect');
       const boatCompany = boatSelect.options[boatSelect.selectedIndex]?.text;
-      const resultBox = document.getElementById("assignmentResult");
-
+      const resultBox = document.getElementById('assignmentResult');
       if (!reportId || !boatSelect.value) {
         resultBox.style.color = 'red';
-        resultBox.textContent = "신고 번호와 수거선을 모두 선택하세요.";
+        resultBox.textContent = '신고 번호와 수거선을 모두 선택하세요.';
         return;
       }
-
       resultBox.style.color = 'green';
       resultBox.textContent = `${reportId}번 신고가 "${boatCompany}"에 배정되었습니다.`;
     }
   </script>
 </body>
 </html>
+
 
 
 

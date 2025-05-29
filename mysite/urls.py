@@ -22,5 +22,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('lists/', include('lists.urls')),
     path('schedule/', include('schedule.urls')),
-    path('maps/',include('maps.urls'))
+    path('maps/',include('maps.urls')),
+    path('sediment-map/', include('sediment.urls')),
 ]

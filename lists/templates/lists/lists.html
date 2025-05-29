@@ -58,10 +58,17 @@
           <li><a href="{% url 'gear_list' %}">구매 정보 관리</a></li>
         </ul>
       </li>
-      <li><a href="{% url 'may-calendar' %}">📅 수거선 배정</a></li>
+      <li class="menu-item">
+        <div class="menu-title" onclick="toggleBoatMenu()">🚢 수거선</div>
+        <ul id="boatSubMenu" class="sub-menu">
+          <li><a href="{% url 'may-calendar' %}">수거선 배정</a></li>
+          <li><a href="{% url 'sediment_map' %}">침적 시뮬레이션</a></li>
+        </ul>
+      </li>
     </ul>
     <div class="sidebar-logout" onclick="window.location.href='/login/'">🚪 로그아웃</div>
   </div>
+
 
   <!-- Main Content -->
   <div class="main-content buyerdb-container">
@@ -261,6 +268,10 @@
 <script>
   function toggleMenu() {
     const menu = document.getElementById("subMenu");
+    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+  }
+  function toggleBoatMenu() {
+    const menu = document.getElementById("boatSubMenu");
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
   }
 </script>

@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'maps',
     'rest_framework',
     'corsheaders',
+    'rds',
+    'sediment',
 ]
 
 REST_FRAMEWORK = {
@@ -121,6 +123,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -157,6 +161,14 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'africa4023!',
         'HOST': '127.0.0.1',
+        'PORT': '3306',
+    },
+    'gpsdb': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gpsdb',
+        'USER': 'noseungmin',
+        'PASSWORD': 'Africa4023!',
+        'HOST': 'database-gps.cpw6u0kio0jo.ap-southeast-2.rds.amazonaws.com',
         'PORT': '3306',
     }
 }
