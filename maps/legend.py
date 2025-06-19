@@ -6,6 +6,7 @@ import pandas as pd
 import json
 import csv
 import math
+import tempfile
 import time
 import matplotlib
 matplotlib.use('Agg')
@@ -133,36 +134,7 @@ def get_sorted_stations(station_df, lat, lon):
 # ─────────────────────────────────────────────
 # 3. KHOA 해류 API 호출 및 NetCDF 저장
 # ─────────────────────────────────────────────
-def fetch_khoa_uv(time_list, lon_min, lon_max, lat_min, lat_max, lon_grid, lat_grid,
-                output_path, service_key):
-    
-    if os.path.exists(output_path):
-        print(f"🔄 기존 NetCDF 발견, 방향 복정 및 패치 중: {output_path}")
-        ds = xr.open_dataset(output_path)
-        try:
-            if 'eastward_sea_water_velocity' in ds and 'northward_sea_water_velocity' in ds:
-                ds = ds.rename({
-                    'eastward_sea_water_velocity': 'x_sea_water_velocity',
-                    'northward_sea_water_velocity': 'y_sea_water_velocity'
-                })
-                ds['x_sea_water_velocity'].attrs['standard_name'] = 'x_sea_water_velocity'
-                ds['y_sea_water_velocity'].attrs['standard_name'] = 'y_sea_water_velocity'
-                ds = ds.interpolate_na(dim='time', method='linear')  # 시간 보간
-
-                # 파일 핸들 닫고 메모리에 로드된 데이터만 반환
-                ds_load = ds.load()
-                ds.close()
-                return ds_load
-            else:
-                ds.close()
-                raise RuntimeError("필수 변수(eastward/northward)가 존재하지 않음")
-        except Exception as e:
-            ds.close()
-            raise e
-
-    # 이하 기존 코드 유지 ...
-
-
+def fetch_khoa_uv(time_list, lon_min, lon_max, lat_min, lat_max, lon_grid, lat_grid, service_key):
     all_data = []
     base_url = "http://www.khoa.go.kr/api/oceangrid/tidalCurrentAreaGeoJson/search.do"
     for t in time_list:
@@ -198,7 +170,6 @@ def fetch_khoa_uv(time_list, lon_min, lon_max, lat_min, lat_max, lon_grid, lat_g
                 'u': u,
                 'v': v
             })
-
     df_all = pd.DataFrame(all_data)
     df_all['time'] = pd.to_datetime(df_all['time']).dt.tz_localize(None)
     times = np.array(sorted(df_all['time'].unique()), dtype='datetime64[ns]')
@@ -441,11 +412,11 @@ def fetch_salinity(time_list, lat, lon, service_key):
 
 
 def fetch_all_khoa(time_list, lon_min, lon_max, lat_min, lat_max,
-                   lon_grid, lat_grid, output_path, service_key):
+                   lon_grid, lat_grid, service_key):
 
     # 1. 해류 데이터 (기존 방식 유지)
     ds = fetch_khoa_uv(time_list, lon_min, lon_max, lat_min, lat_max,
-                       lon_grid, lat_grid, output_path, service_key)
+                       lon_grid, lat_grid, service_key)
 
     # 2. 기준 시간 및 공간 정보
     ds_time = pd.to_datetime(ds['time'].values).tz_localize(None).to_numpy(dtype='datetime64[ns]')
@@ -490,41 +461,11 @@ def fetch_all_khoa(time_list, lon_min, lon_max, lat_min, lat_max,
     ds['sea_water_temperature'].attrs.update(standard_name="sea_water_temperature", units="degree_Celsius")
     ds['sea_water_salinity'].attrs.update(standard_name="sea_water_salinity", units="psu")
 
-    # 7. 저장
-    patched_path = output_path.replace('.nc', '_patched.nc')
-    os.makedirs(os.path.dirname(patched_path), exist_ok=True)
-
     if not np.issubdtype(ds['time'].dtype, np.datetime64):
         ds = ds.assign_coords(time=pd.to_datetime(ds['time'].values).to_numpy(dtype='datetime64[ns]'))
 
-    # 기존 patched 파일이 열려있을 수 있으니 닫기 및 삭제 시도
-    if os.path.exists(patched_path):
-        try:
-            ds_tmp = xr.open_dataset(patched_path)
-            ds_tmp.close()
-        except Exception:
-            pass
-        try:
-            os.remove(patched_path)
-        except Exception as e:
-            print(f"⚠️ 파일 {patched_path} 삭제 실패 (이미 사라졌거나, 권한 없음): {e}")
-    
-    save_succeed = False
-    for i in range(3):
-        try:
-            ds.to_netcdf(patched_path)
-            ds.close()
-            save_succeed = True
-            break
-        except OSError as e:
-            print(f"⚠️ NetCDF 저장 실패 (시도 {i+1}/3): {e}")
-            time.sleep(1)
+    return ds
 
-
-    if not save_succeed:
-        raise RuntimeError(f"NetCDF 파일 저장 실패: {patched_path}")
-    print(f"✅ 새 NetCDF 저장 완료: {patched_path}")
-    return patched_path
 
 
 
@@ -532,10 +473,7 @@ def fetch_all_khoa(time_list, lon_min, lon_max, lat_min, lat_max,
 # 4) ERA5 풍속 다운로드
 # ─────────────────────────────────────────────────────
 
-def fetch_era5(first_time, last_time, lat_min, lat_max,
-               lon_min, lon_max, output_path):
-    patched_path = output_path.replace('.nc', '_patched.nc')
-
+def fetch_era5(first_time, last_time, lat_min, lat_max, lon_min, lon_max):
     # 항상 다운로드하도록 변경
     year  = first_time.strftime('%Y')
     month = first_time.strftime('%m')
@@ -551,51 +489,41 @@ def fetch_era5(first_time, last_time, lat_min, lat_max,
         'time': times, 'area': area, 'format': 'netcdf'
     }
     print('🌬️ ERA5 wind 요청:', era5_request)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    cds = cdsapi.Client()
-    cds.retrieve('reanalysis-era5-single-levels', era5_request, output_path)
-    print(f"✅ ERA5 다운로드 완료: {output_path}")
 
-    # 이후 처리(파일 열고 rename, 속성 추가 등) 동일
-    ds = xr.open_dataset(output_path)
-    try:
-        rename_dict = {}
-        if 'u10' in ds:
-            rename_dict['u10'] = 'x_wind'
-        if 'v10' in ds:
-            rename_dict['v10'] = 'y_wind'
-        ds = ds.rename(rename_dict)
+    client = cdsapi.Client()
+    file_name = 'era5_data.nc'
+    # ERA5 요청
+    result = client.retrieve('reanalysis-era5-single-levels', era5_request)
+    result.download(file_name)  # 같은 파일에 계속 덮어쓰기
 
-        if 'x_wind' in ds:
-            ds['x_wind'].attrs['standard_name'] = 'x_wind'
-        if 'y_wind' in ds:
-            ds['y_wind'].attrs['standard_name'] = 'y_wind'
+    # xarray로 읽고, 임시 파일 삭제
+    ds = xr.open_dataset(file_name)
 
-        if 'expver' in ds.dims:
-            ds = ds.isel(expver=0)
+    rename_dict = {}
+    if 'u10' in ds:
+        rename_dict['u10'] = 'x_wind'
+    if 'v10' in ds:
+        rename_dict['v10'] = 'y_wind'
+    ds = ds.rename(rename_dict)
 
-        if 'number' in ds.dims:
-            ds = ds.isel(number=0)
+    if 'x_wind' in ds:
+        ds['x_wind'].attrs['standard_name'] = 'x_wind'
+    if 'y_wind' in ds:
+        ds['y_wind'].attrs['standard_name'] = 'y_wind'
 
-        ds.to_netcdf(patched_path)
-    finally:
-        ds.close()
-    print(f"✅ wind 패치 저장 완료: {patched_path}")
-    return patched_path
+    if 'expver' in ds.dims:
+        ds = ds.isel(expver=0)
+    if 'number' in ds.dims:
+        ds = ds.isel(number=0)
 
+    return ds
 
 def run_lost_simulation(
     report2_id,
-    nc_folder,
-    wind_folder,
-    plot_output_dir,
     service_key_khoa,
     time_step,
-    retrieve_date=''    
+    retrieve_date   
 ):
-    basename = f"report2_{report2_id}"
-    sub_plot_dir = os.path.join(BASE_DIR, plot_output_dir, basename)
-    os.makedirs(sub_plot_dir, exist_ok=True)
     print("df 로드 중...")  
     df = load_db_to_df(report2_id)
     loc = locate_sequence(df, target=TARGET_SEQ)
@@ -610,10 +538,21 @@ def run_lost_simulation(
     if df0.empty or df[(df['press']==0)&(df['prev_press']!=0)].empty:
         raise RuntimeError("투망 구간 또는 시작 시점 데이터가 없습니다.")
 
-    lon_min, lon_max = df0['lon'].min() - 0.5, df0['lon'].max() + 0.5
-    lat_min, lat_max = df0['lat'].min() - 0.5, df0['lat'].max() + 0.5
-    lon_grid = np.arange(round(lon_min,2), round(lon_max,2)+0.01, 0.01)
-    lat_grid = np.arange(round(lat_min,2), round(lat_max,2)+0.01, 0.01)
+    padding = 0.5
+    lon_min, lon_max = df0['lon'].min() - padding, df0['lon'].max() + padding
+    lat_min, lat_max = df0['lat'].min() - padding, df0['lat'].max() + padding
+    
+    grid_step = 0.25
+    lon_grid = np.arange(
+        np.floor(lon_min / grid_step) * grid_step,
+        np.ceil(lon_max / grid_step) * grid_step + grid_step,
+        grid_step
+    )
+    lat_grid = np.arange(
+        np.floor(lat_min / grid_step) * grid_step,
+        np.ceil(lat_max / grid_step) * grid_step + grid_step,
+        grid_step
+    )
     df_tumang = df[df['press'] == 0].copy().reset_index(drop=True)
     issue_time = df[df['press'] == 2][['time_stamp', 'lat', 'lon']]
     sim_start = df_tumang['time_stamp'].min().tz_localize(None)
@@ -622,18 +561,16 @@ def run_lost_simulation(
     else:
         sim_end   = retrieve_date
 
-    uv_path = get_output_path(f"{basename}_uv.nc", nc_folder)
     time_list = pd.date_range(sim_start, sim_end, freq='h')
     print("KHOA UV 데이터 가져오는 중...")
-    fetch_uv_path = fetch_all_khoa(time_list, lon_min, lon_max, lat_min, lat_max, lon_grid, lat_grid, uv_path, service_key_khoa)
-    wind_path = get_output_path(f"{basename}_wind.nc", wind_folder)
+    fetch_uv = fetch_all_khoa(time_list, lon_min, lon_max, lat_min, lat_max, lon_grid, lat_grid, service_key_khoa)
     print("ERA5 바람 데이터 가져오는 중...")
-    fetch_wind_path = fetch_era5(sim_start, sim_end, lat_min, lat_max, lon_min, lon_max, wind_path)
+    fetch_wind = fetch_era5(sim_start, sim_end, lat_min, lat_max, lon_min, lon_max)
 
     o = OceanDrift(loglevel=20)
     # o = GradualKillDrift(kill_order=kill_order, kill_steps=kill_steps, yangmang_order=yangmang_order, loglevel=20)
-    o.add_reader([reader_netCDF_CF_generic.Reader(fetch_uv_path),
-                    reader_netCDF_CF_generic.Reader(fetch_wind_path)])
+    o.add_reader([reader_netCDF_CF_generic.Reader(fetch_uv),
+                    reader_netCDF_CF_generic.Reader(fetch_wind)])
     o.set_config('seed:wind_drift_factor', 0.02)
     o.set_config('drift:stokes_drift', True)
     o.set_config('general:seafloor_action', 'none')
@@ -687,13 +624,3 @@ def run_lost_simulation(
     # ---------------------------------------------
 
     return center_row['lat'], center_row['lon'], img_base64
-
-# 9. 실행 예시
-if __name__ == '__main__':
-    report2_id = 1
-    KHOA_NC_DIR = 'khoa_data'
-    WIND_DIR = 'wind_data'
-    OUTPUT_DIR = 'each_output'
-    SERVICE_KEY_KHOA = 'ANM8LV6zTsRNiGg6FCUMpw=='  # KHOA API 키
-    TIME_STEP = 600
-    run_lost_simulation(report2_id, KHOA_NC_DIR, WIND_DIR, OUTPUT_DIR, SERVICE_KEY_KHOA, TIME_STEP)

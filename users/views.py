@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from .models import Admin
 
+def root_redirect(request):
+    return redirect('login')
+
 def login_view(request):
     error_message = None
     if request.method == 'POST':

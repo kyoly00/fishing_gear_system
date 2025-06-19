@@ -71,16 +71,13 @@ def simulate_drift(request):
         else:
             sim_date_dt = ''  # 그대로 빈 문자열 넘김
 
-        KHOA_NC_DIR = 'khoa_data'
-        WIND_DIR = 'wind_data'
-        OUTPUT_DIR = 'each_output'
-        SERVICE_KEY_KHOA = 'ANM8LV6zTsRNiGg6FCUMpw=='
+        SERVICE_KEY_KHOA = 'ANM8LV6zTsRNiGg6FCUMpw=='  # KHOA API 키
         TIME_STEP = 600
 
         try:
             # 시뮬레이션 실행 및 base64 이미지 반환
             lat, lon, img_base64 = run_lost_simulation(
-                report2_id, KHOA_NC_DIR, WIND_DIR, OUTPUT_DIR, SERVICE_KEY_KHOA, TIME_STEP, retrieve_date=sim_date_dt,  # 추가: 이미지를 base64로 반환하도록 legend.py run_lost_simulation 수정
+                report2_id, SERVICE_KEY_KHOA, TIME_STEP, retrieve_date=sim_date_dt,  # 추가: 이미지를 base64로 반환하도록 legend.py run_lost_simulation 수정
             )
             return JsonResponse({
                 'sim_latitude': float(lat),

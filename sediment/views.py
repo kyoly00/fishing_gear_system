@@ -1,10 +1,29 @@
 import os
+import requests
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
+
+# S3 Presigned URLs (로컬 테스트용)
+OCEAN_URL = "https://simulation-data-nsm123.s3.ap-southeast-2.amazonaws.com/sm123/REAL_FINAL/new_dataset/new_sediment_data_final_uv.nc"
+WIND_URL = "https://simulation-data-nsm123.s3.ap-southeast-2.amazonaws.com/sm123/REAL_FINAL/new_dataset/new_wind.nc"
+BATHY_URL = "https://simulation-data-nsm123.s3.ap-southeast-2.amazonaws.com/sm123/REAL_FINAL/new_dataset/new_BADA2024.nc"
+
+def download_from_s3(url, filename):
+    local_path = os.path.join("tmp", filename)
+    os.makedirs("tmp", exist_ok=True)
+    if not os.path.exists(local_path):
+        print(f"📥 다운로드 중: {filename}")
+        response = requests.get(url)
+        response.raise_for_status()
+        with open(local_path, 'wb') as f:
+            f.write(response.content)
+    else:
+        print(f"✅ 이미 있음: {filename}")
+    return local_path
 
 def sediment_map_view(request):
     from maps.models import LostingGear, Assignment, Buyer, FishingActivity
@@ -47,11 +66,10 @@ def run_simulation(request):
             if end <= start:
                 end = start + timedelta(hours=1)
 
-            # 최신 파일 경로로 변경
-            base_path = r"C:\Users\ime\Desktop\REAL_FINAL\new_dataset"
-            ocean_file = os.path.join(base_path, "new_sediment_data_final_uv.nc")
-            wind_file = os.path.join(base_path, "new_wind.nc")
-            bathy_file = os.path.join(base_path, "new_BADA2024.nc")
+            # 다운로드 후 경로 설정
+            ocean_file = download_from_s3(OCEAN_URL, "new_sediment_data_final_uv.nc")
+            wind_file = download_from_s3(WIND_URL, "new_wind.nc")
+            bathy_file = download_from_s3(BATHY_URL, "new_BADA2024.nc")
 
             from opendrift.models.sedimentdrift import SedimentDrift
             from opendrift.readers import reader_netCDF_CF_generic
@@ -73,7 +91,6 @@ def run_simulation(request):
             model.set_config('drift:current_uncertainty', 0.2)
             model.set_config('drift:wind_uncertainty', 2)
 
-            # debris type별 침강속도 적용 (일단 '자망' 고정, 필요시 프론트에서 받아서 변경 가능)
             mean_v, std_v = 0.5, 0.05
             terminal_velocity = np.random.normal(loc=-mean_v, scale=std_v, size=len(lons))
             model.seed_elements(
@@ -96,7 +113,6 @@ def run_simulation(request):
                 'status': model.elements.status
             })
 
-            # 마지막 위치만 반환 (각 입자별)
             output = []
             for i in range(len(lons)):
                 output.append({
@@ -109,16 +125,3 @@ def run_simulation(request):
             import traceback
             traceback.print_exc()
             return JsonResponse({'error': str(e)}, status=500)
-
-
-
-
-
-
-
-
-
-
-
-
-
