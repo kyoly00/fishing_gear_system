@@ -111,6 +111,7 @@ class Assignment(models.Model):
         db_table = 'assignment'
 
 class SystemData(models.Model):
+	report2_id = models.IntegerField()  # ✅ 새로 추가된 필드
 	buyer_id = models.CharField(max_length=50)
 	time_stamp = models.DateTimeField(primary_key=True)
 	lat = models.FloatField()

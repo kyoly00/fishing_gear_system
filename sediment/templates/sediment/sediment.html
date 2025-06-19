@@ -24,21 +24,102 @@
     .panel-toggle-button { position: absolute; top: 40px; left: -40px; width: 40px; height: 60px; background-color: #f4f4f4; cursor: pointer; z-index: 1001; border-radius: 8px 0 0 8px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); font-weight: bold; color: #333; display: flex; align-items: center; justify-content: center; transition: left 0.3s ease; }
     .panel-toggle-button.opened { left: 320px; }
     .report-list { position: fixed; top: 0; right: 0; width: 300px; height: 100vh; background-color: #f0f0f0; transition: right 0.3s ease; padding: 20px; box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2); z-index: 1000; overflow-y: auto; }
-    .report-list h3 { margin-top: 4px; margin-bottom: 16px; font-size: 20px; color: #333; }
     .report-list ul { list-style: none; padding: 0; }
-    .report-item { position: relative; background: white; border-radius: 6px; padding: 0; min-height: 60px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); font-size: 14px; display: flex; justify-content: space-between; align-items: stretch; }
-    .report-content { display: flex; flex-direction: column; line-height: 1.6; padding-left: 48px; padding-right: 8px; padding-top: 6px; padding-bottom: 8px; flex: 1; }
-    .report-index { position: absolute; top: 6px; left: 12px; width: 24px; height: 24px; font-size: 14px; font-weight: bold; background: #e0e0e0; border-radius: 4px; color: #333; display: flex; align-items: center; justify-content: center; }
-    .status-box { width: 20px; border-radius: 0 6px 6px 0; align-self: stretch; }
+    .report-item { position: relative; background: white; border-radius: 6px; padding: 0; min-height: 60px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); font-size: 13px; display: flex; justify-content: space-between; align-items: stretch; }
+    .report-content { display: flex; flex-direction: column; line-height: 1.4; padding-left: 42px; padding-right: 7px; padding-top: 5px; padding-bottom: 7px; flex: 1; font-size: 13px;}
+    .report-index { position: absolute; top: 5px; left: 10px; width: 22px; height: 22px; font-size: 12px; font-weight: bold; background: #e0e0e0; border-radius: 4px; color: #333; display: flex; align-items: center; justify-content: center; }
+    .status-box { width: 18px; border-radius: 0 6px 6px 0; align-self: stretch; }
     .status-box.red { background-color: #f44336; }
-    .custom-marker { position: relative; width: 28px; height: 28px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); z-index: 999; }
-    .custom-marker .marker-shape { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background-color: inherit; box-shadow: 0 0 2px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; }
-    .custom-marker .marker-number { position: absolute; color: white; font-weight: bold; font-size: 13px; transform: rotate(45deg); z-index: 1; }
+    .status-box.orange { background-color: orange; }
+    .custom-marker { position: relative; width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); z-index: 999; }
+    .custom-marker .marker-shape { width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background-color: inherit; box-shadow: 0 0 2px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; }
+    .custom-marker .marker-number { position: absolute; color: white; font-weight: bold; font-size: 10.5px; transform: rotate(45deg); z-index: 1; }
     .custom-marker.red .marker-shape { background-color: #f44336; }
+    .custom-marker.orange .marker-shape { background-color: orange; }
+    .reset-btn {
+      background: #fff;
+      color: #f44336;
+      border: 1px solid #f44336;
+      border-radius: 5px;
+      padding: 5px 12px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.18s, color 0.18s;
+      margin-left: 4px;
+      float: right;
+    }
+    .reset-btn:hover {
+      background: #f44336;
+      color: #fff;
+    }
+    .section-title {
+      font-size: 17px;
+      font-weight: bold;
+      color: #222;
+      margin: 0 0 12px 0;
+      font-family: 'Pretendard', sans-serif;
+      letter-spacing: -1px;
+      line-height: 1.3;
+    }
+    /* ===== 로딩 오버레이(중앙, 검정스피너, 흰박스, 작은 폰트) ===== */
+    #loadingOverlay {
+      position: fixed; z-index: 9999; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(40,40,40,0.21);
+      display: none; justify-content: center; align-items: center; pointer-events: all;
+    }
+    .loading-box {
+      background: rgba(255,255,255,0.98);
+      border-radius: 13px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+      padding: 13px 23px 10px 23px;
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 170px;
+    }
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #ddd;
+      border-top: 3px solid #111;
+      border-radius: 50%;
+      animation: spin 0.88s linear infinite;
+      margin-bottom: 8px;
+      background: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    .loading-text {
+      color: #111;
+      font-size: 0.93rem;
+      font-weight: bold;
+      letter-spacing: -1px;
+      user-select: none;
+      text-shadow: 0 2px 10px rgba(255,255,255,0.10);
+      margin-top: 0;
+    }
+    /* ====== 시작일/종료일 선택박스 ====== */
+    .sim-date-panel {
+      position:fixed; bottom:15px; left:300px; z-index:1002;
+      background:#fff; padding:7px 10px 7px 12px; border-radius:8px; box-shadow: 0 2px 5px rgba(0,0,0,0.13);
+      font-size:13px; display:flex; gap:10px; align-items:center;
+    }
+    .sim-date-panel input[type="date"] { font-size:12px; padding:2px 5px; }
+    .sim-date-panel button { font-size:13px; padding:4px 10px; }
   </style>
 </head>
 <body>
+<!-- 중앙 오버레이(로딩) -->
+<div id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <span class="loading-text">시뮬레이션 중...</span>
+  </div>
+</div>
 <div class="dashboard-wrapper">
+  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-logo" onclick="window.location.href='/maps/'">
       <img src="{% static 'images/loginlogo.jpg' %}" alt="로고" class="logo-img" />
@@ -63,13 +144,16 @@
     </ul>
     <div class="sidebar-logout" onclick="window.location.href='/login/'">🚪 로그아웃</div>
   </div>
+  <!-- Map Section -->
   <main class="map-section">
     <div id="map" class="leaflet-container"></div>
   </main>
+  <!-- Report List -->
   <section class="report-list">
     <div class="panel-toggle-button" onclick="togglePanel(this)">◀</div>
-    <div class="report-header">
-      <h3>❗ 침적 시뮬레이션 대상</h3>
+    <div class="report-header" style="display: flex; align-items: center; justify-content: space-between;">
+      <h3 class="section-title" style="margin-bottom:0;">❗ 시뮬레이션 대상</h3>
+      <button class="reset-btn" id="resetSimBtn">초기화</button>
     </div>
     <ul>
       {% for report in lost_reports %}
@@ -85,17 +169,34 @@
       </li>
       {% endfor %}
     </ul>
+    <!-- 시뮬레이션 결과 패널 -->
+    <div id="simResultPanel" style="margin-top:18px;">
+      <h3 class="section-title" style="font-size:17px; color:#222; margin-bottom:7px;">🌊 침적 예측 결과</h3>
+      <ul class="sim-result-list" id="simResultList"></ul>
+    </div>
   </section>
 </div>
-<div style="position:fixed; bottom:20px; left:300px; z-index:1002; background:#fff; padding:10px; border-radius:8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+<div class="sim-date-panel">
   <label>시작일: <input type="date" id="startDate"></label>
   <label>종료일: <input type="date" id="endDate"></label>
   <button id="runSimButton">📍 시뮬레이션 실행</button>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- 중간 생략: <head> ~ <section class="report-list"> 동일 -->
 <script>
+const reportInfoMap = {
+  {% for report in lost_reports %}
+    "{{ report.report_id }}": {
+      "buyer_name": "{{ report.buyer_name }}",
+      "latitude": "{{ report.latitude }}",
+      "longitude": "{{ report.longitude }}",
+      "report_time": "{{ report.report_time }}"
+    },
+  {% endfor %}
+};
+
 let selectedMarkers = [];
+let simResultMarkers = [];
+let selectedMarkerIds = [];
 
 function toggleMenu() {
   const menu = document.getElementById("subMenu");
@@ -111,16 +212,29 @@ function togglePanel(button) {
   button.classList.toggle('opened');
   button.textContent = panel.classList.contains('open') ? '▶' : '◀';
 }
-function onMarkerClick(lat, lon, marker) {
+function onMarkerClick(lat, lon, marker, reportId) {
   if (!marker.selected) {
     marker.setOpacity(0.5);
     selectedMarkers.push({ lat, lon });
+    selectedMarkerIds.push(reportId);
     marker.selected = true;
   } else {
     marker.setOpacity(1);
-    selectedMarkers = selectedMarkers.filter(m => !(m.lat === lat && m.lon === lon));
+    const idx = selectedMarkers.findIndex(m => m.lat === lat && m.lon === lon);
+    if (idx !== -1) {
+      selectedMarkers.splice(idx, 1);
+      selectedMarkerIds.splice(idx, 1);
+    }
     marker.selected = false;
   }
+}
+
+// ==== 로딩 오버레이 ====
+function showLoading() {
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -136,15 +250,18 @@ document.addEventListener("DOMContentLoaded", function () {
   {% for report in lost_reports %}
   let lat{{ forloop.counter }} = {{ report.latitude }};
   let lon{{ forloop.counter }} = {{ report.longitude }};
+  let reportId{{ forloop.counter }} = "{{ report.report_id }}";
   let iconHtml{{ forloop.counter }} = `<div class="marker-shape"><span class="marker-number">{{ report.report_id }}</span></div>`;
   let customIcon{{ forloop.counter }} = L.divIcon({
     className: 'custom-marker red',
     html: iconHtml{{ forloop.counter }},
-    iconSize: [30, 42],
-    iconAnchor: [15, 42],
-    popupAnchor: [0, -40]
+    iconSize: [24, 34],
+    iconAnchor: [12, 34],
+    popupAnchor: [0, -34]
   });
-  let marker{{ forloop.counter }} = L.marker([lat{{ forloop.counter }}, lon{{ forloop.counter }}], { icon: customIcon{{ forloop.counter }} }).addTo(map);
+  let marker{{ forloop.counter }} = L.marker([lat{{ forloop.counter }}, lon{{ forloop.counter }}], {
+    icon: customIcon{{ forloop.counter }}
+  }).addTo(map);
 
   marker{{ forloop.counter }}.bindPopup(
     `<strong>신고자:</strong> {{ report.buyer_name }}<br/>
@@ -152,7 +269,9 @@ document.addEventListener("DOMContentLoaded", function () {
      <strong>시간:</strong> {{ report.report_time }}`
   );
 
-  marker{{ forloop.counter }}.on('click', () => onMarkerClick(lat{{ forloop.counter }}, lon{{ forloop.counter }}, marker{{ forloop.counter }}));
+  marker{{ forloop.counter }}.on('click', () =>
+    onMarkerClick(lat{{ forloop.counter }}, lon{{ forloop.counter }}, marker{{ forloop.counter }}, reportId{{ forloop.counter }})
+  );
   {% endfor %}
 
   document.getElementById('runSimButton').addEventListener('click', () => {
@@ -167,28 +286,74 @@ document.addEventListener("DOMContentLoaded", function () {
       formData.append('lons[]', m.lon);
     });
 
+    // 오버레이 띄우기
+    showLoading();
+
     fetch('{% url "run_simulation" %}', {
       method: 'POST',
       body: formData,
     })
     .then(resp => resp.json())
     .then(data => {
-      data.forEach(d => {
-        L.marker([d.lat, d.lon], {
+      simResultMarkers.forEach(m => map.removeLayer(m));
+      simResultMarkers = [];
+
+      const simResultList = document.getElementById('simResultList');
+      simResultList.innerHTML = "";
+
+      data.forEach((d, i) => {
+        const info = reportInfoMap[selectedMarkerIds[i]];
+        const iconClass = 'orange';
+        const markerHtml = `<div class="marker-shape"><span class="marker-number">${selectedMarkerIds[i]}</span></div>`;
+        const popupHtml =
+          `<strong>신고자:</strong> ${info ? info.buyer_name : "-"}<br/>
+           <strong>예상 위치:</strong> (${d.lat.toFixed(4)}, ${d.lon.toFixed(4)})`;
+
+        const resultMarker = L.marker([d.lat, d.lon], {
           icon: L.divIcon({
-            className: 'custom-marker red',
-            html: `<div class="marker-shape"><span class="marker-number">R</span></div>`,
-            iconSize: [30, 42],
-            iconAnchor: [15, 42]
+            className: `custom-marker ${iconClass}`,
+            html: markerHtml,
+            iconSize: [24, 34],
+            iconAnchor: [12, 34]
           })
-        }).addTo(map).bindPopup(`예상 위치: (${d.lat.toFixed(4)}, ${d.lon.toFixed(4)})`);
+        }).addTo(map).bindPopup(popupHtml);
+        simResultMarkers.push(resultMarker);
+
+        const li = document.createElement('li');
+        li.className = 'report-item';
+        li.innerHTML = `
+          <div class="report-index" style="background:#ffe4b3;">${selectedMarkerIds[i]}</div>
+          <div class="report-content">
+            <div><strong>신고자:</strong> <strong>${info ? info.buyer_name : "-"}</strong></div>
+            <div><strong>예상 위도:</strong> ${d.lat.toFixed(6)}</div>
+            <div><strong>예상 경도:</strong> ${d.lon.toFixed(6)}</div>
+            <div><strong>기간:</strong> ${startDate} ~ ${endDate}</div>
+          </div>
+          <div class="status-box orange"></div>
+        `;
+        simResultList.appendChild(li);
       });
+
+      // 오버레이 끄기
+      hideLoading();
+    }).catch(() => {
+      hideLoading();
+      alert('시뮬레이션 중 오류가 발생했습니다.');
     });
+  });
+
+  document.getElementById('resetSimBtn').addEventListener('click', () => {
+    simResultMarkers.forEach(m => map.removeLayer(m));
+    simResultMarkers = [];
+    selectedMarkers = [];
+    selectedMarkerIds = [];
+    document.getElementById('simResultList').innerHTML = "";
   });
 });
 </script>
 </body>
 </html>
+
 
 
 

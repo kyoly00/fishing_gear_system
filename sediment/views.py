@@ -5,9 +5,6 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
-from opendrift.models.sedimentdrift import SedimentDrift
-from opendrift.readers.reader_netCDF_CF_generic import Reader as GenericReader
-import geopandas as gpd
 
 def sediment_map_view(request):
     from maps.models import LostingGear, Assignment, Buyer, FishingActivity
@@ -36,73 +33,83 @@ def sediment_map_view(request):
         'lost_reports': lost_reports
     })
 
-
 @csrf_exempt
 def run_simulation(request):
     if request.method == 'POST':
         try:
             data = request.POST
-            coords = [
-                (float(lon), float(lat))
-                for lon, lat in zip(data.getlist('lons[]'), data.getlist('lats[]'))
-            ]
+            lats = [float(x) for x in data.getlist('lats[]')]
+            lons = [float(x) for x in data.getlist('lons[]')]
+            coords = list(zip(lons, lats))
+
             start = datetime.strptime(data['start_date'], "%Y-%m-%d")
             end = datetime.strptime(data['end_date'], "%Y-%m-%d")
-
             if end <= start:
                 end = start + timedelta(hours=1)
 
-            print("=== 시뮬레이션 디버그 시작 ===")
-            print("start:", start)
-            print("end:", end)
-            print("duration (초):", (end - start).total_seconds())
-            print("coords:", coords)
-            print("=== 시뮬레이션 디버그 종료 ===")
+            # 최신 파일 경로로 변경
+            base_path = r"C:\Users\ime\Desktop\REAL_FINAL\new_dataset"
+            ocean_file = os.path.join(base_path, "new_sediment_data_final_uv.nc")
+            wind_file = os.path.join(base_path, "new_wind.nc")
+            bathy_file = os.path.join(base_path, "new_BADA2024.nc")
 
-            # NetCDF 파일 경로 (절대경로)
-            base_path = r"C:\Users\ime\Desktop\simtest-20250528T111044Z-1-001\simtest_final"
+            from opendrift.models.sedimentdrift import SedimentDrift
+            from opendrift.readers import reader_netCDF_CF_generic
 
-            ocean_file = os.path.join(base_path, "HYCOM_for_opendrift.nc2")
-            wind_file = os.path.join(base_path, "wind_converted_clean2_fixed.nc")
-            depth_file = os.path.join(base_path, "rename_output.nc")
+            reader_ocean = reader_netCDF_CF_generic.Reader(ocean_file)
+            reader_wind = reader_netCDF_CF_generic.Reader(wind_file)
+            reader_bathy = reader_netCDF_CF_generic.Reader(bathy_file)
 
-            # 리더 생성 (순서: depth → wind → ocean)
-            depth_reader = GenericReader(depth_file)
-            wind_reader = GenericReader(wind_file)
-            ocean_reader = GenericReader(ocean_file)
-
-            # 모델 초기화 및 리더 추가
             model = SedimentDrift(loglevel=20)
-            model.add_reader([depth_reader, wind_reader, ocean_reader])
-
-            # 설정
-            model.set_config('drift:horizontal_diffusivity', 50)
+            model.add_reader([reader_ocean, reader_wind, reader_bathy])
+            model.set_config('vertical_mixing:diffusivitymodel', 'windspeed_Large1994')
+            model.set_config('seed:wind_drift_factor', 0.02)
+            model.set_config('drift:stokes_drift', True)
+            model.set_config('drift:vertical_advection', True)
+            model.set_config('drift:vertical_mixing', False)
+            model.set_config('general:coastline_action', 'previous')
             model.set_config('general:seafloor_action', 'deactivate')
+            model.set_config('drift:horizontal_diffusivity', 100)
+            model.set_config('drift:current_uncertainty', 0.2)
+            model.set_config('drift:wind_uncertainty', 2)
 
-            # 입자 시딩
-            lons, lats = zip(*coords)
+            # debris type별 침강속도 적용 (일단 '자망' 고정, 필요시 프론트에서 받아서 변경 가능)
+            mean_v, std_v = 0.5, 0.05
+            terminal_velocity = np.random.normal(loc=-mean_v, scale=std_v, size=len(lons))
             model.seed_elements(
                 lon=lons,
                 lat=lats,
                 time=start,
-                terminal_velocity=np.full(len(coords), 10)
+                terminal_velocity=terminal_velocity
             )
 
-            # 시뮬레이션 실행
-            model.run(time_step=1800, time_step_output=10800, duration=end - start)
+            model.run(
+                time_step=1800,
+                time_step_output=10800,
+                duration=end - start
+            )
 
-            # 결과 반환
             results = pd.DataFrame({
                 'lon': model.elements.lon,
-                'lat': model.elements.lat
+                'lat': model.elements.lat,
+                'z': model.elements.z,
+                'status': model.elements.status
             })
 
-            return JsonResponse(results.to_dict(orient='records'), safe=False)
+            # 마지막 위치만 반환 (각 입자별)
+            output = []
+            for i in range(len(lons)):
+                output.append({
+                    'lon': float(results['lon'].iloc[i]),
+                    'lat': float(results['lat'].iloc[i]),
+                })
+            return JsonResponse(output, safe=False)
 
         except Exception as e:
             import traceback
             traceback.print_exc()
             return JsonResponse({'error': str(e)}, status=500)
+
 
 
 

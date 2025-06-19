@@ -1,57 +1,98 @@
-# views.py (전체 수정 버전)
 from django.shortcuts import render
-from .models import LostingGear, FishingActivity, Buyer, Assignment
+from django.http import JsonResponse
 from rds.models import SystemData
+from datetime import datetime
+import io
+import base64
 
 def map_view(request):
-    view_type = request.GET.get('view', 'assigned')  # 기본값: 수거 완료 어구
+    view_type = request.GET.get('view', 'assigned')
     lost_reports = []
 
-    assigned_ids = set(Assignment.objects.values_list('as_admin_id', flat=True))
-
-    for report in LostingGear.objects.all():
-        if (view_type == 'assigned' and report.lg_admin_id not in assigned_ids) or \
-           (view_type == 'unassigned' and report.lg_admin_id in assigned_ids):
-            continue
-
-        try:
-            activity = FishingActivity.objects.get(fa_buyer_id=report.lg_buyer_id)
-            buyer = Buyer.objects.get(buyer_id=activity.fa_buyer_id)
-        except (FishingActivity.DoesNotExist, Buyer.DoesNotExist):
-            continue
-
-        lost_reports.append({
-            'report_id': report.report_id,
-            'buyer_name': buyer.buyer_name,
-            'report_time': report.report_time.strftime('%Y-%m-%d %H:%M'),
-            'latitude': float(report.cast_latitude),
-            'longitude': float(report.cast_longitude),
-        })
-
-    # ✅ SystemData 기반 가상 신고 추가 (buyer_id 동일, press=0 중간값만 대표로 표시)
     if view_type == 'unassigned':
-        system_data = SystemData.objects.using('gpsdb').filter(buyer_id='alsdfhu204hdufs').order_by('time_stamp')
-
-        press_0_data = [row for row in system_data if row.press == 0]
-        press_4_time = next((row.time_stamp for row in reversed(system_data) if row.press == 4), None)
-
-        if press_0_data:
-            middle_idx = len(press_0_data) // 2
-            middle = press_0_data[middle_idx]
-
+        # SystemData 2명만!
+        report_name_map = {2: "서민석", 3: "금교현"}
+        for rid in [2, 3]:
+            rows = SystemData.objects.using('gpsdb').filter(report2_id=rid).order_by('-time_stamp')
+            if rows.exists():
+                row = rows.first()
+                lost_reports.append({
+                    'report_id': f'{row.report2_id}',
+                    'buyer_name': report_name_map[row.report2_id],
+                    'report_time': row.time_stamp.strftime('%Y-%m-%d %H:%M'),
+                    'report_time_raw': row.time_stamp.strftime('%Y-%m-%d'),
+                    'latitude': row.lat,
+                    'longitude': row.lon,
+                })
+    else:
+        from .models import LostingGear, FishingActivity, Buyer, Assignment
+        assigned_ids = set(Assignment.objects.values_list('as_admin_id', flat=True))
+        for report in LostingGear.objects.all():
+            if (view_type == 'assigned' and report.lg_admin_id not in assigned_ids) or \
+               (view_type == 'unassigned' and report.lg_admin_id in assigned_ids):
+                continue
+            try:
+                activity = FishingActivity.objects.get(fa_buyer_id=report.lg_buyer_id)
+                buyer = Buyer.objects.get(buyer_id=activity.fa_buyer_id)
+            except (FishingActivity.DoesNotExist, Buyer.DoesNotExist):
+                continue
             lost_reports.append({
-                'report_id': '20',  # 신고 번호를 명시적으로 20으로 설정
-                'buyer_name': middle.buyer_id,
-                'report_time': press_4_time.strftime('%Y-%m-%d %H:%M') if press_4_time else '알 수 없음',
-                'latitude': middle.lat,
-                'longitude': middle.lon,
+                'report_id': report.report_id,
+                'buyer_name': buyer.buyer_name,
+                'report_time': report.report_time.strftime('%Y-%m-%d %H:%M'),
+                'report_time_raw': report.report_time.strftime('%Y-%m-%d'),
+                'latitude': float(report.cast_latitude),
+                'longitude': float(report.cast_longitude),
             })
-
     context = {
         'lost_reports': lost_reports,
         'view_type': view_type,
     }
     return render(request, 'maps/maps.html', context)
+
+# --- AJAX 엔드포인트: 시뮬레이션 실행 ---
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .legend import run_lost_simulation  # legend.py와 같은 디렉토리여야 함
+
+@csrf_exempt
+def simulate_drift(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        report2_id = int(data.get('report2_id'))
+        sim_date = data.get('sim_date', '')
+
+        # sim_date가 값이 있으면 datetime 객체로 변환
+        if sim_date:
+            try:
+                sim_date_dt = datetime.strptime(sim_date, "%Y-%m-%d")
+            except Exception as e:
+                return JsonResponse({'error': f"날짜 형식 오류: {sim_date} (YYYY-MM-DD 필요)", 'success': False})
+        else:
+            sim_date_dt = ''  # 그대로 빈 문자열 넘김
+
+        KHOA_NC_DIR = 'khoa_data'
+        WIND_DIR = 'wind_data'
+        OUTPUT_DIR = 'each_output'
+        SERVICE_KEY_KHOA = 'ANM8LV6zTsRNiGg6FCUMpw=='
+        TIME_STEP = 600
+
+        try:
+            # 시뮬레이션 실행 및 base64 이미지 반환
+            lat, lon, img_base64 = run_lost_simulation(
+                report2_id, KHOA_NC_DIR, WIND_DIR, OUTPUT_DIR, SERVICE_KEY_KHOA, TIME_STEP, retrieve_date=sim_date_dt,  # 추가: 이미지를 base64로 반환하도록 legend.py run_lost_simulation 수정
+            )
+            return JsonResponse({
+                'sim_latitude': float(lat),
+                'sim_longitude': float(lon),
+                'report2_id': int(report2_id),
+                'sim_img_base64': img_base64,
+                'success': True
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e), 'success': False})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 
 
