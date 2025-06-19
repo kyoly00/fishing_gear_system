@@ -115,7 +115,7 @@
 <div id="loadingOverlay">
   <div class="loading-box">
     <div class="spinner"></div>
-    <span class="loading-text">시뮬레이션 중...</span>
+    <span class="loading-text">시뮬레이션 중(예상 소요시간: 10분)</span>
   </div>
 </div>
 <div class="dashboard-wrapper">
@@ -177,8 +177,9 @@
   </section>
 </div>
 <div class="sim-date-panel">
-  <label>시작일: <input type="date" id="startDate"></label>
-  <label>종료일: <input type="date" id="endDate"></label>
+  <label>❗지도에서 시뮬레이션 할 마커를 우선 선택해주세요! <br></label>
+  <label>시작일: <input type="date" id="startDate" value="2024-03-03" /></label>
+  <label>종료일: <input type="date" id="endDate" value="2024-03-05" /></label>
   <button id="runSimButton">📍 시뮬레이션 실행</button>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
